@@ -6,8 +6,6 @@ from PIL import Image
 
 class Map_Obj():
     def __init__(self, task=1):
-        if task == 1:
-            self.path_to_map = './Samfundet_map_1.csv'
         self.start_pos, self.goal_pos, self.end_goal_pos, self.path_to_map = self.fill_critical_positions(task)
         self.int_map, self.str_map = self.read_map(self.path_to_map, self.start_pos, self.goal_pos)
         self.tmp_cell_value = self.get_cell_value(self.goal_pos)
@@ -17,7 +15,7 @@ class Map_Obj():
         #self.set_start_pos_str_marker(start_pos, self.str_map)
         #self.set_goal_pos_str_marker(goal_pos, self.str_map)
 
-    def read_map(self, path):
+    def read_map(self, path, start_pos, goal_pos):
         """
         Reads maps specified in path from file, converts them to a numpy array and a string array. Then replaces
         specific values in the string array with predefined values more suitable for printing.
