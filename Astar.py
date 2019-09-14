@@ -3,7 +3,7 @@ import sys
 import math
 open_list = []
 closed_list = []
-
+found_goal = False
 class Node():
     def __init__(self, position, skip=False, parent=None, kids=None):
         self.position = position # Position of the node
@@ -29,7 +29,7 @@ def euclidean(current_node, end_goal_node):
 
 def h_distance(current_node, end_goal_node):
     # Returns heuristic distance - estimated distance from current node to end goal node
-    current_node.h = manhattan(current_node, end_goal_node)
+    current_node.h = diagonal(current_node, end_goal_node)
     return current_node
 
 def g_distance(current_node, start_node):
@@ -76,15 +76,23 @@ def get_diagonal_nodes(node, map):
 
 def get_surrounding_nodes(node, map):
     adjacent_nodes = get_adjacent_nodes(node, map)
-    # diagonal_nodes = get_diagonal_nodes(node, map)
-    # surrounding_nodes = adjacent_nodes
+    diagonal_nodes = get_diagonal_nodes(node, map)
+    surrounding_nodes = adjacent_nodes + diagonal_nodes
     # if len(surrounding_nodes) > 8:
     #     print('Something has gone very wrong')
     #     return -1
     if len(adjacent_nodes) > 4:
         print('Something has gone very wrong')
     else:
-        return adjacent_nodes
+        return surrounding_nodes
+
+def return_path(current_node):
+    path = []
+    current = current_node
+    while current is not None:
+        path.append(current.position)
+        current = current.parent
+    print(path[::-1])
 
 def open_list_check(current_node):
     for x in range(0, len(open_list)):
@@ -106,12 +114,8 @@ def add_to_open_list(surrounding_nodes):
 def distance_calculation(current_node, surrounding_nodes, end_goal_node):
     for x in range(0, len(surrounding_nodes)):
         if(surrounding_nodes[x].position == end_goal_node.position):
-            print('Found the goal, I guess do a function that gets the final path here or something')
-            look_at_list(closed_list)
-            print(len(closed_list))
-            print(len(open_list))
-            look_at_list(open_list)
-            return 0
+            return_path(surrounding_nodes[x])
+            sys.exit('Found path exiting')
         surrounding_nodes[x] = g_distance(surrounding_nodes[x], current_node)
         surrounding_nodes[x] = h_distance(surrounding_nodes[x], end_goal_node)
         surrounding_nodes[x].f = surrounding_nodes[x].g + surrounding_nodes[x].h
@@ -134,7 +138,8 @@ def traverse(node_start_pos, node_goal_pos, map):
         closed_list.append(current_node)
         surrounding_nodes = get_surrounding_nodes(current_node, map)
         surrounding_nodes = distance_calculation(current_node, surrounding_nodes, end_goal_node)
-        add_to_open_list(surrounding_nodes)
+        if found_goal == False:
+            add_to_open_list(surrounding_nodes)
     return 0
 
 if __name__ == "__main__":
