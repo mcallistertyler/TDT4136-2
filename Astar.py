@@ -3,20 +3,19 @@ import sys
 import math
 open_list = []
 closed_list = []
-found_goal = False
 class Node():
-    def __init__(self, position, skip=False, parent=None, kids=None):
+    def __init__(self, position, skip=False, parent=None, cell_cost=1):
         self.position = position # Position of the node
         self.g = 0 # distance between current node and the start node
         self.h = 0 # the heuristic - estimated cost from the current node to the goal node
         self.f = 0 # f = g + h - estimated total cost
+        self.cell_cost = cell_cost
         self.skip = skip # skip or dont
         self.parent = parent # Pointer to the best parent node
         if parent != None:
-            self.parent_position = parent.position
+            self.parent_position = parent.position # Keeps track of the position of the node's parent. Sanity check.
         else:
             self.parent_position = None
-        self.kids = kids # List of all successor nodes
 
 def manhattan(current_node, end_goal_node):
     return abs(current_node.position[0] - end_goal_node.position[0]) + abs(current_node.position[1] - end_goal_node.position[1])
@@ -42,52 +41,38 @@ def look_at_list(nodes):
     for x in range(0, len(nodes)):
         print(vars(nodes[x]))
 
-## Find the node with the best f cost - i.e. the least
-def best_f_cost():
-    temp_f = sys.maxsize
-    for x in range(0, len(open_list)):
-        if open_list[x].f < temp_f:
-            temp_f = open_list[x].f
-            best_node = open_list[x]
-    return best_node
-
 def get_adjacent_nodes(node, map):
     adjacent_nodes = []
-    if(map.get_cell_value([node.position[0] + 1, node.position[1]]) == 1):
-        adjacent_nodes.append(Node([node.position[0] + 1, node.position[1]], parent=node))
-    if(map.get_cell_value([node.position[0] - 1, node.position[1]]) == 1):
-        adjacent_nodes.append(Node([node.position[0] - 1, node.position[1]], parent=node))
-    if(map.get_cell_value([node.position[0], node.position[1] + 1]) == 1):
-        adjacent_nodes.append(Node([node.position[0], node.position[1] + 1], parent=node))
-    if(map.get_cell_value([node.position[0], node.position[1] - 1]) == 1):
-        adjacent_nodes.append(Node([node.position[0], node.position[1] - 1], parent=node))
+    if(map.get_cell_value([node.position[0] + 1, node.position[1]]) != -1):
+        adjacent_nodes.append(Node([node.position[0] + 1, node.position[1]], parent=node, cell_cost=map.get_cell_value([node.position[0] + 1, node.position[1]])))
+    if(map.get_cell_value([node.position[0] - 1, node.position[1]]) != -1):
+        adjacent_nodes.append(Node([node.position[0] - 1, node.position[1]], parent=node, cell_cost=map.get_cell_value([node.position[0] - 1, node.position[1]])))
+    if(map.get_cell_value([node.position[0], node.position[1] + 1]) != -1):
+        adjacent_nodes.append(Node([node.position[0], node.position[1] + 1], parent=node, cell_cost=map.get_cell_value([node.position[0], node.position[1] + 1])))
+    if(map.get_cell_value([node.position[0], node.position[1] - 1]) != -1):
+        adjacent_nodes.append(Node([node.position[0], node.position[1] - 1], parent=node, cell_cost=map.get_cell_value([node.position[0], node.position[1] - 1])))
     return adjacent_nodes
 
 def get_diagonal_nodes(node, map):
     diagonal_nodes = []
-    if(map.get_cell_value([node.position[0] + 1, node.position[1] + 1]) == 1):
-        diagonal_nodes.append(Node([node.position[0] + 1, node.position[1] + 1], parent=node))
-    if(map.get_cell_value([node.position[0] + 1, node.position[1] - 1]) == 1):
-        diagonal_nodes.append(Node([node.position[0] + 1, node.position[1] - 1], parent=node))
-    if(map.get_cell_value([node.position[0] - 1, node.position[1] + 1]) == 1):
-        diagonal_nodes.append(Node([node.position[0] - 1, node.position[1] + 1], parent=node))
-    if(map.get_cell_value([node.position[0] - 1, node.position[1] - 1]) == 1):
-        diagonal_nodes.append(Node([node.position[0] - 1, node.position[1] - 1], parent=node))
+    if(map.get_cell_value([node.position[0] + 1, node.position[1] + 1]) != -1):
+        diagonal_nodes.append(Node([node.position[0] + 1, node.position[1] + 1], parent=node, cell_cost=map.get_cell_value([node.position[0] + 1, node.position[1] + 1])))
+    if(map.get_cell_value([node.position[0] + 1, node.position[1] - 1]) != -1):
+        diagonal_nodes.append(Node([node.position[0] + 1, node.position[1] - 1], parent=node, cell_cost=map.get_cell_value([node.position[0] + 1, node.position[1] - 1])))
+    if(map.get_cell_value([node.position[0] - 1, node.position[1] + 1]) != -1):
+        diagonal_nodes.append(Node([node.position[0] - 1, node.position[1] + 1], parent=node, cell_cost=map.get_cell_value([node.position[0] - 1, node.position[1] + 1])))
+    if(map.get_cell_value([node.position[0] - 1, node.position[1] - 1]) != -1):
+        diagonal_nodes.append(Node([node.position[0] - 1, node.position[1] - 1], parent=node, cell_cost=map.get_cell_value([node.position[0] - 1, node.position[1] - 1])))
     return diagonal_nodes
 
 def get_surrounding_nodes(node, map):
     adjacent_nodes = get_adjacent_nodes(node, map)
     diagonal_nodes = get_diagonal_nodes(node, map)
     surrounding_nodes = adjacent_nodes + diagonal_nodes
-    # if len(surrounding_nodes) > 8:
-    #     print('Something has gone very wrong')
-    #     return -1
-    if len(adjacent_nodes) > 4:
-        print('Something has gone very wrong')
-    else:
-        return adjacent_nodes
+    return adjacent_nodes
 
 def return_path(current_node, map):
+    print('Found a path')
     path = []
     current = current_node
     while current is not None:
@@ -95,6 +80,7 @@ def return_path(current_node, map):
         map.set_cell_value(current.position, ' P ')
         current = current.parent
     print(path[::-1])
+    print('Path is ', len(path), ' steps.')
 
 def open_list_check(current_node):
     for x in range(0, len(open_list)):
@@ -118,10 +104,10 @@ def distance_calculation(current_node, surrounding_nodes, end_goal_node, map):
         if(surrounding_nodes[x].position == end_goal_node.position):
             return_path(surrounding_nodes[x], map)
             map.show_map()
-            sys.exit('Found path exiting')
+            sys.exit('Path found exiting...')
         surrounding_nodes[x] = g_distance(surrounding_nodes[x], current_node)
         surrounding_nodes[x] = h_distance(surrounding_nodes[x], end_goal_node)
-        surrounding_nodes[x].f = surrounding_nodes[x].g + surrounding_nodes[x].h
+        surrounding_nodes[x].f = (surrounding_nodes[x].g + surrounding_nodes[x].h) * surrounding_nodes[x].cell_cost
         surrounding_nodes[x] = open_list_check(surrounding_nodes[x])
         surrounding_nodes[x] = closed_list_check(surrounding_nodes[x])
     return surrounding_nodes
@@ -141,11 +127,8 @@ def traverse(node_start_pos, node_goal_pos, map):
         closed_list.append(current_node)
         surrounding_nodes = get_surrounding_nodes(current_node, map)
         surrounding_nodes = distance_calculation(current_node, surrounding_nodes, end_goal_node, map)
-        if found_goal == False:
-            add_to_open_list(surrounding_nodes)
-    return 0
+        add_to_open_list(surrounding_nodes)
 
 if __name__ == "__main__":
     map = Map.Map_Obj(task=2)
-    # map.show_map()
     traverse(map.get_start_pos(), map.get_end_goal_pos(), map)

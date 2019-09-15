@@ -4,9 +4,10 @@ open_list = []
 closed_list = []
 
 class Node:
-    def __init__(self, parent=None, position=None):
+    def __init__(self, parent=None, position=None, cell_cost=0):
         self.parent = parent
         self.position = position
+        self.cell_cost = cell_cost
         self.g = 0
         self.h = 0
         self.f = 0
@@ -47,8 +48,8 @@ def astar(start, end, map):
                 current_node = item
                 current_index = index
         
-        if outer_iterations > max_iterations:
-            return return_path(current_node)
+        # if outer_iterations > max_iterations:
+        #     return return_path(current_node)
         
         open_list.pop(current_index)
         closed_list.append(current_node)
@@ -63,7 +64,7 @@ def astar(start, end, map):
 
             if map.get_cell_value(node_position) != 1:
                 continue
-
+            
             new_node = Node(current_node, node_position)
 
             children.append(new_node)
@@ -82,7 +83,7 @@ def astar(start, end, map):
             open_list.append(child)
 
 if __name__ == "__main__":
-    map = Map.Map_Obj()
+    map = Map.Map_Obj(task=3)
     path = astar(map.get_start_pos(), map.get_end_goal_pos(), map)
     print(path)
     print(len(path))
