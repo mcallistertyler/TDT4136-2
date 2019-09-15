@@ -25,11 +25,12 @@ def diagonal(current_node, end_goal_node):
     return max([abs(current_node.position[0] - end_goal_node.position[0]), abs(current_node.position[1] - end_goal_node.position[1])])
 
 def euclidean(current_node, end_goal_node):
-    return math.sqrt((current_node.position[0] - end_goal_node.position[0]) * 2 + (current_node.position[1] - end_goal_node.position[1]) * 2)
+    return math.sqrt(((current_node.position[0] - end_goal_node.position[0])**2) + ((current_node.position[1] - end_goal_node.position[1])**2))
 
 def h_distance(current_node, end_goal_node):
     # Returns heuristic distance - estimated distance from current node to end goal node
-    current_node.h = diagonal(current_node, end_goal_node)
+    #current_node.h = euclidean(current_node, end_goal_node)
+    current_node.h = manhattan(current_node, end_goal_node)
     return current_node
 
 def g_distance(current_node, start_node):
@@ -84,13 +85,14 @@ def get_surrounding_nodes(node, map):
     if len(adjacent_nodes) > 4:
         print('Something has gone very wrong')
     else:
-        return surrounding_nodes
+        return adjacent_nodes
 
-def return_path(current_node):
+def return_path(current_node, map):
     path = []
     current = current_node
     while current is not None:
         path.append(current.position)
+        map.set_cell_value(current.position, ' P ')
         current = current.parent
     print(path[::-1])
 
@@ -111,10 +113,11 @@ def add_to_open_list(surrounding_nodes):
         if surrounding_nodes[x].skip == False:
             open_list.append(surrounding_nodes[x])
 
-def distance_calculation(current_node, surrounding_nodes, end_goal_node):
+def distance_calculation(current_node, surrounding_nodes, end_goal_node, map):
     for x in range(0, len(surrounding_nodes)):
         if(surrounding_nodes[x].position == end_goal_node.position):
-            return_path(surrounding_nodes[x])
+            return_path(surrounding_nodes[x], map)
+            map.show_map()
             sys.exit('Found path exiting')
         surrounding_nodes[x] = g_distance(surrounding_nodes[x], current_node)
         surrounding_nodes[x] = h_distance(surrounding_nodes[x], end_goal_node)
@@ -137,12 +140,12 @@ def traverse(node_start_pos, node_goal_pos, map):
         open_list.pop(current_index)
         closed_list.append(current_node)
         surrounding_nodes = get_surrounding_nodes(current_node, map)
-        surrounding_nodes = distance_calculation(current_node, surrounding_nodes, end_goal_node)
+        surrounding_nodes = distance_calculation(current_node, surrounding_nodes, end_goal_node, map)
         if found_goal == False:
             add_to_open_list(surrounding_nodes)
     return 0
 
 if __name__ == "__main__":
-    map = Map.Map_Obj()
+    map = Map.Map_Obj(task=2)
     # map.show_map()
     traverse(map.get_start_pos(), map.get_end_goal_pos(), map)
