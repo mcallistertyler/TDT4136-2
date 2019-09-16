@@ -1,4 +1,5 @@
 __pycache__
+*.jpg
 Astar-attempt2.py
 map1
 *.pbm

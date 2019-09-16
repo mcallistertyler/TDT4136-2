@@ -1,7 +1,7 @@
 import Map #the map implementation
 import sys #needed for some bad practice stuff
-import math #needed to do some quick maths
-import argparse
+import math #quick maths
+import argparse #this thing is also cool
 
 open_list = []
 closed_list = []
@@ -44,7 +44,7 @@ def g_distance(current_node, start_node):
     current_node.g = start_node.g + 1
     return current_node
 
-# Just makes looking at the open list a little easier - utility
+# Just makes looking at the open and closed lists a little easier to help debug stuff
 def look_at_list(nodes):
     for x in range(0, len(nodes)):
         print(vars(nodes[x]))
@@ -76,7 +76,7 @@ def get_diagonal_nodes(node, map):
         diagonal_nodes.append(Node([node.position[0] - 1, node.position[1] - 1], parent=node, cell_cost=map.get_cell_value([node.position[0] - 1, node.position[1] - 1])))
     return diagonal_nodes
 
-# Can return either adjacent, diagonal or both depending on what you return
+# Can return either adjacent, diagonal or both depending on what you chose
 def get_surrounding_nodes(node, map, movement):
     adjacent_nodes = get_adjacent_nodes(node, map)
     diagonal_nodes = get_diagonal_nodes(node, map)
@@ -84,7 +84,7 @@ def get_surrounding_nodes(node, map, movement):
     if movement == 2:
         return surrounding_nodes
     else:
-        return adjacent_nodes # just return adjacent because that's all the assignment asked for lol
+        return adjacent_nodes
 
 # When a path is found this iterates backwards through a node's parents and then reverses the path
 # It will also set the value of the map to show that it has been walked on.
