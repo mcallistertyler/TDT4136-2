@@ -39,9 +39,9 @@ def h_distance(current_node, end_goal_node, heuristic):
         current_node.h = diagonal(current_node, end_goal_node)
     return current_node
 
-def g_distance(current_node, start_node):
+def g_distance(current_node, start_node, map):
     # Returns g distance between current node and starting node
-    current_node.g = start_node.g + 1
+    current_node.g = start_node.g + map.get_cell_value(current_node.position)
     return current_node
 
 # Just makes looking at the open and closed lists a little easier to help debug stuff
@@ -109,7 +109,7 @@ def open_list_check(current_node):
 # If a node is already in the closed list just skip it
 def closed_list_check(current_node):
     for x in range(0, len(closed_list)):
-        if(closed_list[x].position == current_node.position and closed_list[x].f < current_node.f):
+        if(closed_list[x].position == current_node.position):
             current_node.skip = True
     return current_node
 
@@ -128,9 +128,9 @@ def path_find(current_node, surrounding_nodes, end_goal_node, map, heuristic):
             return_path(surrounding_nodes[x], map)
             map.show_map()
             sys.exit('Path found exiting...') #...just exits when a path is found
-        surrounding_nodes[x] = g_distance(surrounding_nodes[x], current_node)
+        surrounding_nodes[x] = g_distance(surrounding_nodes[x], current_node, map)
         surrounding_nodes[x] = h_distance(surrounding_nodes[x], end_goal_node, heuristic)
-        surrounding_nodes[x].f = (surrounding_nodes[x].g + surrounding_nodes[x].h) + surrounding_nodes[x].cell_cost
+        surrounding_nodes[x].f = (surrounding_nodes[x].g + surrounding_nodes[x].h)
         surrounding_nodes[x] = open_list_check(surrounding_nodes[x])
         surrounding_nodes[x] = closed_list_check(surrounding_nodes[x])
     return surrounding_nodes
