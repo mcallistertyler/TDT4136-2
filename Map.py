@@ -214,7 +214,6 @@ class Map_Obj():
         image = Image.new('RGB', (width * scale, height * scale), (255, 255, 0))
         # Load image
         pixels = image.load()
-
         # Define what colors to give to different values of the string map (undefined values will remain yellow, this is
         # how the yellow path is painted)
         colors = {' # ': (128, 206, 225), ' . ': (215, 215, 215), ' , ': (166, 166, 166), ' : ': (96, 96, 96),
